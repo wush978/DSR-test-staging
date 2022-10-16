@@ -1,0 +1,6 @@
+name: DSR-test-staging
+channels:
+  - conda-forge
+dependencies:
+  - pip=22.3=pyhd8ed1ab_0
+  - python=3.10.6=ha86cf86_0_cpython
