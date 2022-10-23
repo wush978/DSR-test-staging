@@ -56,7 +56,8 @@ RUN echo 'Acquire::https::Proxy "{self.https_proxy}";' > /etc/apt/apt.conf.d/81h
         lines.append(
             f"""
 RUN apt-get update && \
-  apt-get install -y libxml2-dev libcurl4-openssl-dev libssl-dev libpng-dev libjpeg-dev
+  apt-get install -y libxml2-dev libcurl4-openssl-dev libssl-dev \
+      libpng-dev libjpeg-dev libgdal-dev
 RUN echo "en_US.UTF-8 UTF-8" > /etc/locale.gen && \
   echo "zh_TW.UTF-8 UTF-8" >> /etc/locale.gen && \
   echo "" >> /etc/locale.gen && \
@@ -69,6 +70,7 @@ VOLUME ["/home/jenkins/{R_LIB_DIRNAME}"]
 RUN chown -R jenkins:jenkins /home/jenkins
 USER jenkins
 WORKDIR /home/jenkins
+COPY R/subprocess_0.8.3.tar.gz /home/jenkins
             """
         )
         for repo_name, _ in self.archive_results.items():

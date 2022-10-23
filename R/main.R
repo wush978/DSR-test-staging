@@ -47,10 +47,14 @@ write(
 pvm.list <- file.path('pvm-list', sprintf('dsr-%s.yml', R.version))
 pvm::import.packages(
   pvm.list,
-  repos = repos
+  repos = repos,
+  Ncpus = 4L
 )
 utils::install.packages("swirl", repos = NULL, type = 'source', lib = R_LIBS[1])
-if (!suppressWarnings(require(subprocess))) remotes::install_version("subprocess", "0.8.3", repos = 'https://cloud.r-project.org')
+if (!suppressWarnings(require(subprocess))) {
+  # remotes::install_version("subprocess", "0.8.3", repos = 'https://cloud.r-project.org')
+  utils::install.packages('/home/jenkins/subprocess_0.8.3.tar.gz', repos = NULL, type = 'source')
+}
 utils::install.packages("swirlify", repos = NULL, type = 'source', lib = R_LIBS[1])
 
 Sys.setenv("SWIRL_DEV"="TRUE")
