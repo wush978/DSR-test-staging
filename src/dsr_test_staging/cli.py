@@ -75,7 +75,8 @@ def test_dsr_version(version):
         archive_dir=archive_dir,
     )
     logger.info(f'{archive_results}')
-    # copy R script
+    # copy R script and subprocess
+    ensure_subprocess()
     shutil.copytree('R', os.path.join(archive_dir, 'R'))
     # init Dockerfile
     docker = Docker(
@@ -92,5 +93,17 @@ def test_dsr_version(version):
     return archive_results
 
 
+def ensure_subprocess():
+    if os.path.exists('R/subprocess_0.8.3.tar.gz'):
+        return
+    import urllib.request
+    src_url = 'https://cran.r-project.org/src/contrib/Archive/' + \
+        'subprocess/subprocess_0.8.3.tar.gz'
+    urllib.request.urlretrieve(
+        src_url,
+        filename='R/subprocess_0.8.3.tar.gz',
+    )
+
+    
 if __name__ == '__main__':
     cli()
