@@ -26,15 +26,8 @@ lapply(R_LIBS, dir.create, recursive = TRUE, showWarnings = FALSE)
 Sys.setenv("R_LIBS" = paste(R_LIBS, collapse = .Platform$file.sep))
 loginfo('R_LIBS: %s', Sys.getenv('R_LIBS'))
 
-# Install pvm
-if (!suppressWarnings(require(remotes))) utils::install.packages("remotes", repos = "http://cran.csie.ntu.edu.tw", lib = R_LIBS[1])
-utils::install.packages("pvm", repos = NULL, type = 'source', lib = R_LIBS[1])
-
 # Install pvm-list
-repos <- sprintf(
-  'https://cran.microsoft.com/snapshot/%s',
-  pvm::R.release.dates[R.version] + 14
-)
+repos <- 'https://cran.csie.ntu.edu.tw'
 names(repos) <- 'CRAN'
 options(repos=repos)
 loginfo('repos: %s', getOption('repos'))
@@ -44,12 +37,14 @@ write(
   ),
   file = '/home/jenkins/.Rprofile'
 )
-pvm.list <- file.path('pvm-list', sprintf('dsr-%s.yml', R.version))
-pvm::import.packages(
-  pvm.list,
-  repos = repos,
-  Ncpus = 4L
-)
+local({
+  pkgs <- c('stringr', 'stringi', 'testthat', 'httr', 'yaml', 'RCurl', 'digest', 'rappdirs', 'getPass')
+  for (pkg in pkgs) {
+    if (!requireNamespace(pkg)) {
+      utils::install.packages(pkg)
+    }
+  }
+})
 utils::install.packages("swirl", repos = NULL, type = 'source', lib = R_LIBS[1])
 if (!suppressWarnings(require(subprocess))) {
   # remotes::install_version("subprocess", "0.8.3", repos = 'https://cloud.r-project.org')
