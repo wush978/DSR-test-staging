@@ -1,12 +1,13 @@
 import os
 import shutil
 from dataclasses import dataclass
-from typing import Dict, ClassVar
+from typing import ClassVar, List
 import logging
 import subprocess
 from subprocess import CompletedProcess
 from dsr_test_staging.config import settings
 from dsr_test_staging.constants import R_LIB_DIRNAME
+from dsr_test_staging.repo import ArchiveResult
 
 logger = logging.getLogger(__name__)
 
@@ -15,7 +16,7 @@ logger = logging.getLogger(__name__)
 class Docker:
     version: str
     archive_dir: str
-    archive_results: Dict[str, str]
+    archive_results: List[ArchiveResult]
     r_lib_cache_dir: str
     
     TAG: ClassVar[str] = 'dsr-test-staging'
@@ -67,19 +68,25 @@ RUN echo "en_US.UTF-8 UTF-8" > /etc/locale.gen && \
 ENV LC_ALL=zh_TW.UTF-8
 RUN useradd -u 110 -ms /bin/bash jenkins
 VOLUME ["/home/jenkins/{R_LIB_DIRNAME}"]
-RUN chown -R jenkins:jenkins /home/jenkins
-USER jenkins
 WORKDIR /home/jenkins
 COPY R/subprocess_0.8.3.tar.gz /home/jenkins
             """
         )
-        for repo_name, _ in self.archive_results.items():
-            lines.append(
-                f'ADD {repo_name}.tar /home/jenkins/{repo_name}'
-            )
+        for archive_result in self.archive_results:
+            if archive_result.subdir is None:
+                lines.append(
+                    f'ADD {archive_result.repo}.tar /home/jenkins/{archive_result.repo}'
+                )
+            else:
+                lines += [
+                    f'ADD {archive_result.repo}.tar /home/jenkins/.{archive_result.repo}',
+                    f'RUN mv /home/jenkins/.{archive_result.repo}/{archive_result.subdir} /home/jenkins/{archive_result.repo} && rm -rf /home/jenkins/.{archive_result.repo}',
+                ]
         lines.append(
             f"""
 ADD R/main.R /home/jenkins/main.R
+RUN chown -R jenkins:jenkins /home/jenkins
+USER jenkins
 CMD ["/usr/local/bin/Rscript", "/home/jenkins/main.R"]
             """
         )

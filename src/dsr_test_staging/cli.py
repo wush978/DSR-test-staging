@@ -48,10 +48,12 @@ def test_dsr(output, version):
     else:
         versions = [version]
     for version in versions:
-        try:
-            results[version] = test_dsr_version(version)
+        results[version] = {}
+        try:            
+            results[version]['archives'] = test_dsr_version(version)
             results[version]['pass'] = True
         except Exception:
+            logger.exception('error')
             results[version]['pass'] = False
     with open(output, 'w') as fp:
         fp.write(json.dumps(results))
@@ -90,7 +92,10 @@ def test_dsr_version(version):
     docker.build()
     # test courses
     docker.run()
-    return archive_results
+    return [
+        {'repo': archive_result.repo, 'commit': archive_result.commit.hexsha}
+        for archive_result in archive_results
+    ]
 
 
 def ensure_subprocess():

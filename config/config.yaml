@@ -31,9 +31,18 @@ target_versions:
   - 4.3.1
 target_repos:
   # repo name and target branch
-  - swirl: staging
-  - swirlify: staging
-  - DataScienceAndR: dev/course
+  - repo: swirl
+    branch: staging
+    subdir: null
+  - repo: swirlify
+    branch: staging
+    subdir: null
+  - repo: DataScienceAndR
+    branch: dev/course
+    subdir: null
+  - repo: HahowRTutorial
+    branch: staging
+    subdir: course/HahowRTutorial
 repos_dir: 'repos'
 docker_dir: 'docker'
 tests:
@@ -61,5 +70,32 @@ tests:
       - Optional-RProgramming-01-Loop-And-Condition
       - Optional-RProgramming-02-Function-Introduction
       - Project-ROpenData-Power-GDP
+  - name: HahowRTutorial
+    test_course: HahowRTutorial
+    lesson_prefix:
+      - 01-Variable
+      - 02-String
+      - 03-Function
+      - 04-Package
+      - 05-RTypeAndStatistics
+      - 06-LogicalVector
+      - 07-NumericVector
+      - 08-CharacterVector
+      - 09-Vectorization
+      - 10-SquareBrackets-LogicalVector
+      - 11-SquareBrackets-NumericVector
+      - 12-SquareBrackets-CharacterVector
+      - 13-List
+      - 14-Attributes
+      - 15-Create
+      - 16-Read
+      - 17-Update
+      - 18-Delete
+      - 19-CurlyBrackets
+      - 20-NestedFunction
+      - 21-ForLoop
+      - 22-CreateFunction
+      - 23-Lapply
+      - ForLoop-Challenge
 use_cache_r_lib: false
 checkout_target_repos: true

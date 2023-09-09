@@ -4,14 +4,23 @@ from dataclasses import dataclass
 from typing import Iterable, Tuple
 import git
 from dsr_test_staging.config import settings
+from typing import Optional, List
 
 logger = logging.getLogger(__name__)
+
+
+@dataclass
+class ArchiveResult:
+    repo: str
+    commit: str
+    subdir: Optional[str]    
 
 
 @dataclass
 class Repo:
     repo: str
     branch: str
+    subdir: Optional[str]
     repos_dir: str
     
     @property
@@ -43,18 +52,23 @@ class Repo:
         fname = f'{self.repo}.tar'
         with open(os.path.join(archive_dir, fname), 'wb') as fp:
             self.git_repo.archive(fp, format='tar')
-        return (self.repo, self.git_repo.commit())
+        return ArchiveResult(
+            repo=self.repo,
+            commit=self.git_repo.commit(),
+            subdir=self.subdir,
+        )
 
     @staticmethod
-    def run(repos_dir: str, archive_dir: str):
-        result = {}
+    def run(repos_dir: str, archive_dir: str) -> List[ArchiveResult]:
+        results = []
         for repo in Repo.from_settings(repos_dir=repos_dir):
-            repo_name, commit = repo.archive(archive_dir=archive_dir)
-            result[repo_name] = commit.hexsha[:7]
-        return result
+            results.append(repo.archive(archive_dir=archive_dir))
+        return results
 
     @staticmethod
     def from_settings(repos_dir: str) -> Iterable['Repo']:
         for target_repo in settings.target_repos:
-            for repo, branch in target_repo.items():
-                yield Repo(repo=repo, branch=branch, repos_dir=repos_dir)
+            yield Repo(
+                repos_dir=repos_dir,
+                **target_repo,
+            )
